@@ -167,7 +167,7 @@ def data_collection(email, password, data_face, data_lip, random_num):
 def page(random_num):
     # 注意事项
     instrunction()
-    file = open(r"file_names.txt", "r", encoding='utf-8') # 保证每次读取的文件顺序相同
+    file = open(r"filenames.txt", "r", encoding='utf-8') # 保证每次读取的文件顺序相同
     file_list = file.readlines()
     file.close()
 
