@@ -10,7 +10,7 @@ from email.header import decode_header
 import numpy as np
 import random
 
-@st.cache_data
+@st.cache
 def send_email(email, password, array):
     # 构建邮件主体
     msg = MIMEMultipart()
@@ -33,7 +33,7 @@ def send_email(email, password, array):
     except smtplib.SMTPException as e:
         print('邮件发送失败，错误信息：', e)
 
-@st.cache_data
+@st.cache
 def read_email(myemail, password):
     try:
         # 连接IMAP服务器
@@ -71,7 +71,7 @@ def read_email(myemail, password):
         #st.error(f'出现错误：{e}')
         st.error('网络问题，请刷新页面')
 
-@st.cache_data
+
 def instrunction():
     st.subheader("Instructions: ")
     text1 = 'Please watch the short videos (duration 4~7s) of two animated talking heads. \
@@ -118,12 +118,12 @@ def get_ans(answer_str):
 #     st.video(fr'video/{file_name}',start_time=0)
 #     st.write("Please answer the following questions, after you watch the video. ")
 
-@st.cache_data
+@st.cache
 def play_video(file_name):
     video_bytes = open(file_name, 'rb').read()
     return video_bytes
 
-@st.cache_data
+@st.cache
 def data_collection(email, password, data_face, data_lip, random_num):
     # 发送内容
     data1 = ''.join(str(x) for x in data_face)
@@ -213,8 +213,8 @@ if __name__ == '__main__':
 
     if "data_face" and "data_lip" not in st.session_state:
     # 初始化data变量
-        data_face = [1 for x in range(0, 12)]
-        data_lip = [1 for x in range(0, 12)]
+        data_face = [1 for x in range(0, 30)]
+        data_lip = [1 for x in range(0, 30)]
     else:
         # 恢复data变量的状态
         data_face = st.session_state["data_face"]
@@ -233,6 +233,3 @@ if __name__ == '__main__':
 
     #st.write(f'这是第{random_num+1}份试卷')
     page(random_num)
-
-
-    
