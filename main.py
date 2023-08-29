@@ -10,7 +10,7 @@ from email.header import decode_header
 import numpy as np
 import random
 
-@st.cache
+@st.cache_data
 def send_email(email, password, array):
     # 构建邮件主体
     msg = MIMEMultipart()
@@ -33,7 +33,7 @@ def send_email(email, password, array):
     except smtplib.SMTPException as e:
         print('邮件发送失败，错误信息：', e)
 
-@st.cache
+@st.cache_data
 def read_email(myemail, password):
     try:
         # 连接IMAP服务器
@@ -71,7 +71,7 @@ def read_email(myemail, password):
         #st.error(f'出现错误：{e}')
         st.error('网络问题，请刷新页面')
 
-
+@st.cache_data
 def instrunction():
     st.subheader("Instructions: ")
     text1 = 'Please watch the short videos (duration 4~7s) of two animated talking heads. \
@@ -118,12 +118,12 @@ def get_ans(answer_str):
 #     st.video(fr'video/{file_name}',start_time=0)
 #     st.write("Please answer the following questions, after you watch the video. ")
 
-@st.cache
+@st.cache_data
 def play_video(file_name):
     video_bytes = open(file_name, 'rb').read()
     return video_bytes
 
-@st.cache
+@st.cache_data
 def data_collection(email, password, data_face, data_lip, random_num):
     # 发送内容
     data1 = ''.join(str(x) for x in data_face)
@@ -179,11 +179,11 @@ def page(random_num):
     # Ours vs. FaceFormer 61-90
     # Ours vs. GT 91-120
 
-    for num in range(12):
+    for num in range(30):
         # 显示页面内容
-        #st.write(f'这是第{num+1+random_num*12}个视频，名称为{file_list[num+random_num*12].rstrip()}')
+        #st.write(f'这是第{num+1+random_num*30}个视频，名称为{file_list[num+random_num*30].rstrip()}')
         st.subheader(fr"Video {num+1}")
-        video_bytes = play_video('video/' + file_list[num+random_num*12].rstrip())
+        video_bytes = play_video('video/' + file_list[num+random_num*30].rstrip())
         st.video(video_bytes)
 
         st.write("Please answer the following questions, after you watch the video. ")
