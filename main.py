@@ -183,7 +183,7 @@ def page(random_num):
         # 显示页面内容
         #st.write(f'这是第{num+1+random_num*30}个视频，名称为{file_list[num+random_num*30].rstrip()}')
         st.subheader(fr"Video {num+1}")
-        video_bytes = play_video('video/' + file_list[num+random_num*30].rstrip())
+        video_bytes = play_video(file_list[num+random_num*30].rstrip())
         st.video(video_bytes)
 
         st.write("Please answer the following questions, after you watch the video. ")
