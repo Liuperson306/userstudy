@@ -167,23 +167,19 @@ def data_collection(email, password, data_face, data_lip, random_num):
 def page(random_num):
     # 注意事项
     instrunction()
-    file = open(r"filenames.txt", "r", encoding='utf-8') # 保证每次读取的文件顺序相同
+    file = open(r"filenames_BIWI.txt", "r", encoding='utf-8') # 保证每次读取的文件顺序相同
     file_list = file.readlines()
     file.close()
 
     if "button_clicked" not in st.session_state:
         st.session_state.button_clicked = False
         
-    # Ours vs. VOCA 1-30
-    # Ours vs. MeshTalk 31-60
-    # Ours vs. FaceFormer 61-90
-    # Ours vs. GT 91-120
 
-    for num in range(30):
+    for num in range(15):
         # 显示页面内容
-        #st.write(f'这是第{num+1+random_num*30}个视频，名称为{file_list[num+random_num*30].rstrip()}')
+        st.write(f'这是第{num+1+random_num*15}个视频，名称为{file_list[num+random_num*15].rstrip()}')
         st.subheader(fr"Video {num+1}")
-        video_bytes = play_video(file_list[num+random_num*30].rstrip())
+        video_bytes = play_video(file_list[num+random_num*15].rstrip())
         st.video(video_bytes)
 
         st.write("Please answer the following questions, after you watch the video. ")
@@ -233,3 +229,6 @@ if __name__ == '__main__':
 
     #st.write(f'这是第{random_num+1}份试卷')
     page(random_num)
+
+
+    
