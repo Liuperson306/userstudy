@@ -10,7 +10,7 @@ from email.header import decode_header
 import numpy as np
 import random
 
-@st.cache
+@st.cache_data
 def send_email(email, password, array):
     # 构建邮件主体
     msg = MIMEMultipart()
@@ -33,7 +33,7 @@ def send_email(email, password, array):
     except smtplib.SMTPException as e:
         print('邮件发送失败，错误信息：', e)
 
-@st.cache
+@st.cache_data
 def read_email(myemail, password):
     try:
         # 连接IMAP服务器
@@ -118,12 +118,12 @@ def get_ans(answer_str):
 #     st.video(fr'video/{file_name}',start_time=0)
 #     st.write("Please answer the following questions, after you watch the video. ")
 
-@st.cache
+@st.cache_data
 def play_video(file_name):
     video_bytes = open(file_name, 'rb').read()
     return video_bytes
 
-@st.cache
+@st.cache_data
 def data_collection(email, password, data_face, data_lip, random_num):
     # 发送内容
     data1 = ''.join(str(x) for x in data_face)
