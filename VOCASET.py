@@ -16,7 +16,7 @@ def send_email(email, password, array):
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = email  # 收件人邮箱
-    msg['Subject'] = 'Number of submissions'
+    msg['Subject'] = fr'{dataset} Number of submissions'
     
     # 邮件正文
     string = ''.join([str(element) for element in array])
@@ -40,8 +40,8 @@ def read_email(myemail, password):
         mail = imaplib.IMAP4_SSL('imap.126.com')
         mail.login(myemail, password)
         mail.select('inbox')  # 选择收件箱
-        # 搜索标题为"题目提交次数"的邮件
-        _, msg_nums = mail.search(None, '(SUBJECT "Number of submissions")')
+        # 搜索标题
+        _, msg_nums = mail.search(None, fr'(SUBJECT "{dataset} Number of submissions")')
 
         if msg_nums[0]:
             latest_email_id = msg_nums[0].split()[-1]
@@ -54,7 +54,6 @@ def read_email(myemail, password):
             if isinstance(subject, bytes):
                 subject = subject.decode(encoding)
 
-            #sender = email.utils.parseaddr(email_message['from'])[1]
             body = ""
             # 提取邮件正文
             if email_message.is_multipart():
@@ -63,12 +62,11 @@ def read_email(myemail, password):
                     if "text/plain" in content_type:
                         body = part.get_payload(decode=True).decode()
                         break
-        # 将字符串中的每个数字字符转换为整数，并存入数组
+
         array = [int(char) for char in body]
         mail.logout()
         return array
     except Exception as e:
-        #st.error(f'出现错误：{e}')
         st.error('网络问题，请刷新页面')
 
 
@@ -86,11 +84,6 @@ def QA(data_face, data_lip, num):
     options_1 = ["Left", "Right"]
     question_2 = "Comparing the :blue[lips] of two faces, which one is more :blue[in sync with audio]?"
     options_2 = ["Left", "Right"]
-
-    # question_1 = "Comparing the two full :blue[faces]:neutral_face:, which one looks more :blue[realistic]?"
-    # options_1 = ["Left", "Right"]
-    # question_2 = "Comparing the :blue[lips]:lips: of two faces, which one is more :blue[in sync with audio]?"
-    # options_2 = ["Left", "Right"]
 
     # 显示问题并获取用户的答案
     answer_1 = st.radio(label=question_1, options=options_1, key=fr"button{num}.1")
@@ -111,13 +104,6 @@ def get_ans(answer_str):
     elif "Right" in answer_str:
         return "0"
     
-# # 播放Video文件下的视频
-# def play_video(file_name,num):
-#     st.subheader(fr"Video{num+1}/12")
-#     #st.subheader(file_name)
-#     st.video(fr'video/{file_name}',start_time=0)
-#     st.write("Please answer the following questions, after you watch the video. ")
-
 @st.cache_data
 def play_video(file_name):
     video_bytes = open(file_name, 'rb').read()
@@ -131,7 +117,7 @@ def data_collection(email, password, data_face, data_lip, random_num):
     string = "face:" + data1 + "\n" + "lip:" + data2
     localtime = time.strftime(f'%Y-%m-%d %H-%M-%S', time.localtime())
     # 打开文件并指定写模式
-    file_name = str(random_num) + ' ' + localtime + ".txt"
+    file_name = dataset + ' ' + str(random_num+1) + ' ' + localtime + ".txt"
     file = open(file_name, "w")
     # 将字符串写入文件
     file.write(string)
@@ -142,7 +128,7 @@ def data_collection(email, password, data_face, data_lip, random_num):
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = email  # 收件人邮箱
-    msg['Subject'] = str(random_num) + ' ' + localtime
+    msg['Subject'] = dataset + ' ' + str(random_num+1) + ' ' + localtime
 
     # 邮件正文
     text = MIMEText(string)
@@ -165,58 +151,57 @@ def data_collection(email, password, data_face, data_lip, random_num):
         print('邮件发送失败，错误信息：', e)
 
 def page(random_num):
-    # 注意事项
     instrunction()
-    file = open(r"filenames_VOCASET.txt", "r", encoding='utf-8') # 保证每次读取的文件顺序相同
+    file = open(fr"filenames_{dataset}.txt", "r", encoding='utf-8') 
     file_list = file.readlines()
     file.close()
 
     if "button_clicked" not in st.session_state:
         st.session_state.button_clicked = False
         
-
     for num in range(15):
         # 显示页面内容
-        st.write(f'这是第{num+1+random_num*15}个视频，名称为{file_list[num+random_num*15].rstrip()}')
+        #st.write(f'这是第{num+1+random_num*15}个视频，名称为{file_list[num+random_num*15].rstrip()}')
         st.subheader(fr"Video {num+1}")
         video_bytes = play_video(file_list[num+random_num*15].rstrip())
         st.video(video_bytes)
 
         st.write("Please answer the following questions, after you watch the video. ")
-        #st.write(f'这是第{num+1}题')
         QA(data_face, data_lip, num+1)
 
     if not st.session_state.button_clicked:
         if st.button("Submit results"):
-            #st.write(random_num)
+            global array
             array[random_num]+=1
+            # 初始化
+            #array = [0,0,0,0,0,0,0,0,0,0]
+
             send_email(myemail, password, array)
-            #st.write(array)
             data_collection(myemail, password, data_face, data_lip, random_num)
-            st.session_state.button_clicked = True # 按钮设置为True
+            st.session_state.button_clicked = True 
+
     if st.session_state.button_clicked == True:
-        #st.balloons()
         st.success("Successfully submitted the results. Thank you for using it. Now you can exit the system.")
-        #st.write(data_face,data_lip)
 
 if __name__ == '__main__':
-    st.set_page_config(page_title="Streamlit App")
-    myemail = st.secrets["my_email"]["email"]  # 邮箱账号
-    password =  st.secrets["my_email"]["password"]  # 邮箱密码
+    dataset = 'VOCASET' 
+    st.set_page_config(page_title="userstudy")
+    myemail = st.secrets["my_email"]["email"]  
+    password =  st.secrets["my_email"]["password"]  
+
     array = read_email(myemail, password)
     if all(element == 3 for element in array):
         array = [0] * 10
 
     if "data_face" and "data_lip" not in st.session_state:
-    # 初始化data变量
-        data_face = [1 for x in range(0, 30)]
-        data_lip = [1 for x in range(0, 30)]
+        # 初始化data变量
+        data_face = [1 for x in range(15)]
+        data_lip = [1 for x in range(15)]
     else:
-        # 恢复data变量的状态
         data_face = st.session_state["data_face"]
         data_lip = st.session_state["data_lip"]
     random_num = 0
-    # array = [0,0,0,0,0,0,0,0,0,0]
+
     if 'random_num' not in st.session_state:
         st.session_state.random_num = random.randint(0, 9)
         if array[st.session_state.random_num] == 3:
@@ -226,7 +211,6 @@ if __name__ == '__main__':
                     break
 
     random_num = st.session_state.random_num
-
-    #st.write(f'这是第{random_num+1}份试卷')
     page(random_num)
+
 
