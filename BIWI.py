@@ -170,11 +170,9 @@ def page(random_num):
 
     if not st.session_state.button_clicked:
         if st.button("Submit results"):
-            global array
+            array = read_email(myemail, password)
+            print(array)
             array[random_num]+=1
-            # 初始化
-            #array = [0,0,0,0,0,0,0,0,0,0]
-
             send_email(myemail, password, array)
             data_collection(myemail, password, data_face, data_lip, random_num)
             st.session_state.button_clicked = True 
@@ -189,6 +187,7 @@ if __name__ == '__main__':
     password =  st.secrets["my_email"]["password"]  
 
     array = read_email(myemail, password)
+    print(array)
     if all(element == 3 for element in array):
         array = [0] * 10
 
@@ -203,7 +202,7 @@ if __name__ == '__main__':
 
     if 'random_num' not in st.session_state:
         st.session_state.random_num = random.randint(0, 9)
-        if array[st.session_state.random_num] == 3:
+        if array[st.session_state.random_num] == 3 or array[st.session_state.random_num] > 3 :
             while True:
                 st.session_state.random_num = random.randint(0, 9)
                 if array[st.session_state.random_num] < 3 :
