@@ -152,7 +152,7 @@ def data_collection(email, password, data_face, data_lip, random_num):
 
 def page(random_num):
     instrunction()
-    file = open(r"filenames_BIWI.txt", "r", encoding='utf-8') 
+    file = open(fr"filenames_{dataset}.txt", "r", encoding='utf-8') 
     file_list = file.readlines()
     file.close()
 
