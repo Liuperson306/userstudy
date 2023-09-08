@@ -33,7 +33,43 @@ def send_email(email, password, array):
     except smtplib.SMTPException as e:
         print('邮件发送失败，错误信息：', e)
 
+@st.cache_data
 def read_email(myemail, password):
+    try:
+        # 连接IMAP服务器
+        mail = imaplib.IMAP4_SSL('imap.126.com')
+        mail.login(myemail, password)
+        mail.select('inbox')  # 选择收件箱
+        # 搜索标题
+        _, msg_nums = mail.search(None, fr'(SUBJECT "{dataset} Number of submissions")')
+
+        if msg_nums[0]:
+            latest_email_id = msg_nums[0].split()[-1]
+            _, msg_data = mail.fetch(latest_email_id, '(RFC822)')
+            raw_email = msg_data[0][1].decode('utf-8')
+
+            # 解析邮件内容
+            email_message = email.message_from_string(raw_email)
+            subject, encoding = decode_header(email_message['subject'])[0]
+            if isinstance(subject, bytes):
+                subject = subject.decode(encoding)
+
+            body = ""
+            # 提取邮件正文
+            if email_message.is_multipart():
+                for part in email_message.walk():
+                    content_type = part.get_content_type()
+                    if "text/plain" in content_type:
+                        body = part.get_payload(decode=True).decode()
+                        break
+
+        array = [int(char) for char in body]
+        mail.logout()
+        return array
+    except Exception as e:
+        st.error('网络问题，请刷新页面')
+
+def read_email_(myemail, password):
     try:
         # 连接IMAP服务器
         mail = imaplib.IMAP4_SSL('imap.126.com')
@@ -170,7 +206,7 @@ def page(random_num):
 
     if not st.session_state.button_clicked:
         if st.button("Submit results"):
-            array = read_email(myemail, password)
+            array = read_email_(myemail, password)
             print(array)
             array[random_num]+=1
             send_email(myemail, password, array)
