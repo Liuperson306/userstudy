@@ -32,7 +32,8 @@ def send_email(email, password, array):
         print('邮件发送成功')
     except smtplib.SMTPException as e:
         print('邮件发送失败，错误信息：', e)
-
+        
+@st.cache_data
 def read_email(myemail, password):
     try:
         # 连接IMAP服务器
